@@ -149,7 +149,7 @@ func getIndices(ibuf unsafe.Pointer, iblen, isize int) []uint16 {
 	return nil
 }
 
-func Render(target *ebiten.Image, displaySize [2]float32, framebufferSize [2]float32, drawData imgui.DrawData, txcache map[imgui.TextureID]*ebiten.Image) {
+func Render(target *ebiten.Image, drawData imgui.DrawData, txcache map[imgui.TextureID]*ebiten.Image) {
 	if !drawData.Valid() {
 		return
 	}

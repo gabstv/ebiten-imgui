@@ -54,7 +54,7 @@ func (g *G) Draw(screen *ebiten.Image) {
 	imgui.SliderFloat("float", &g.f, 0.0, 1.0) // Edit 1 float using a slider from 0.0f to 1.0f
 	imgui.Render()
 
-	renderer.Render(screen, [2]float32{800, 600}, [2]float32{800, 600}, imgui.RenderedDrawData(), g.c)
+	renderer.Render(screen, imgui.RenderedDrawData(), g.c)
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %.2f", ebiten.CurrentTPS()))
 }
 
