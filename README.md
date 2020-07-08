@@ -1,5 +1,15 @@
-// +build example
+Ebiten - imGUI
+==============
 
+A renderer of [imgui-go](https://github.com/inkyblackness/imgui-go) for [Ebiten](https://github.com/hajimehoshi/ebiten)!
+
+This project is in a pre-alpha stage. The API might change in future versions.
+
+![preview](assets/preview.png)
+
+Usage:
+
+```go
 package main
 
 import (
@@ -54,9 +64,6 @@ func (g *G) Draw(screen *ebiten.Image) {
 		imgui.Text(fmt.Sprintf("counter = %d", g.counter))
 
 		imgui.InputText("Name", &g.name)
-
-		//imgui.Text(fmt.Sprintf("Application average %.3f ms/frame (%.1f FPS)",
-		//	millisPerSecond/imgui.CurrentIO().Framerate(), imgui.CurrentIO().Framerate()))
 	}
 
 	g.mgr.EndFrame(screen)
@@ -71,3 +78,4 @@ func (g *G) Update(screen *ebiten.Image) error {
 func (g *G) Layout(outsideWidth, outsideHeight int) (int, int) {
 	return 800, 600
 }
+```
