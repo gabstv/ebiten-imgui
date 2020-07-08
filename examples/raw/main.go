@@ -17,7 +17,6 @@ func main() {
 	imctx := imgui.CreateContext(nil)
 	defer imctx.Destroy()
 	io := imgui.CurrentIO()
-	//io.SetClipboard()
 	io.SetClipboard(clipboard{})
 	gg := &G{
 		c: make(map[imgui.TextureID]*ebiten.Image),
