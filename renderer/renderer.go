@@ -14,6 +14,7 @@ var nextTextureID int32
 type GetCursorFn func() (x, y float32)
 
 type Manager struct {
+	Filter       ebiten.Filter
 	Cache        map[imgui.TextureID]*ebiten.Image
 	ctx          *imgui.Context
 	cliptxt      string
@@ -78,7 +79,7 @@ func (m *Manager) BeginFrame() {
 
 func (m *Manager) EndFrame(screen *ebiten.Image) {
 	imgui.Render()
-	Render(screen, imgui.RenderedDrawData(), m.Cache)
+	Render(screen, imgui.RenderedDrawData(), m.Cache, m.Filter)
 }
 
 func New(fontAtlas *imgui.FontAtlas) *Manager {
@@ -115,20 +116,4 @@ func NewWithContext(ctx *imgui.Context) *Manager {
 	}
 	m.setKeyMapping()
 	return m
-}
-
-type Renderer struct {
-	Target *ebiten.Image
-	Cache  map[imgui.TextureID]*ebiten.Image
-}
-
-func (r *Renderer) PreRender(clearColor [3]float32) {
-	_ = r.Target.Clear()
-}
-
-func (r *Renderer) Render(drawData imgui.DrawData) {
-	if r.Cache == nil {
-		r.Cache = make(map[imgui.TextureID]*ebiten.Image)
-	}
-	Render(r.Target, drawData, r.Cache)
 }

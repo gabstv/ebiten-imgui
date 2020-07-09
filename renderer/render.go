@@ -11,8 +11,6 @@ import (
 	"github.com/inkyblackness/imgui-go/v2"
 )
 
-var Filter ebiten.Filter
-
 // struct ImDrawVert
 // {
 //     ImVec2  pos; // 2 floats
@@ -89,10 +87,10 @@ func getVerticesx64(vbuf unsafe.Pointer, vblen, vsize, offpos, offuv, offcol int
 			SrcY:   float32(rawverts[i].UV.Y),
 			DstX:   float32(rawverts[i].Pos.X),
 			DstY:   float32(rawverts[i].Pos.Y),
-			ColorR: float32(uint8(rawverts[i].Col)) / 255,
-			ColorG: float32(uint8(rawverts[i].Col<<8)) / 255,
-			ColorB: float32(uint8(rawverts[i].Col<<16)) / 255,
-			ColorA: float32(uint8(rawverts[i].Col<<24)) / 255,
+			ColorR: float32(rawverts[i].Col&0xFF) / 255,
+			ColorG: float32(rawverts[i].Col>>8&0xFF) / 255,
+			ColorB: float32(rawverts[i].Col>>16&0xFF) / 255,
+			ColorA: float32(rawverts[i].Col>>24&0xFF) / 255,
 		})
 	}
 	return vertices
@@ -149,13 +147,18 @@ func getIndices(ibuf unsafe.Pointer, iblen, isize int) []uint16 {
 	return nil
 }
 
-func Render(target *ebiten.Image, drawData imgui.DrawData, txcache map[imgui.TextureID]*ebiten.Image) {
+// Render the ImGui drawData into the target *ebiten.Image
+func Render(target *ebiten.Image, drawData imgui.DrawData, txcache map[imgui.TextureID]*ebiten.Image, dfilter ebiten.Filter) {
 	if !drawData.Valid() {
 		return
 	}
 
 	vertexSize, vertexOffsetPos, vertexOffsetUv, vertexOffsetCol := imgui.VertexBufferLayout()
 	indexSize := imgui.IndexBufferLayout()
+
+	opt := &ebiten.DrawTrianglesOptions{
+		Filter: dfilter,
+	}
 
 	for _, clist := range drawData.CommandLists() {
 		var indexBufferOffset int
@@ -171,11 +174,11 @@ func Render(target *ebiten.Image, drawData imgui.DrawData, txcache map[imgui.Tex
 			} else {
 				texid := cmd.TextureID()
 				if _, ok := txcache[texid]; !ok {
-					txcache[texid] = getTexture(imgui.CurrentIO().Fonts().TextureDataRGBA32(), Filter)
+					txcache[texid] = getTexture(imgui.CurrentIO().Fonts().TextureDataRGBA32(), dfilter)
 				}
 				tx := txcache[texid]
 				vmultiply(vertices, vbuf, tx.Bounds().Min, tx.Bounds().Max)
-				target.DrawTriangles(vbuf, indices[indexBufferOffset:indexBufferOffset+ecount], txcache[texid], &ebiten.DrawTrianglesOptions{})
+				target.DrawTriangles(vbuf, indices[indexBufferOffset:indexBufferOffset+ecount], txcache[texid], opt)
 			}
 			indexBufferOffset += ecount
 		}
