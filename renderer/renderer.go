@@ -23,6 +23,8 @@ type Manager struct {
 	SyncInputsFn func()
 	SyncCursor   bool
 	SyncInputs   bool
+	lmask        *ebiten.Image
+	ClipMask     bool
 }
 
 func (m *Manager) onfinalize() {
@@ -79,7 +81,22 @@ func (m *Manager) BeginFrame() {
 
 func (m *Manager) EndFrame(screen *ebiten.Image) {
 	imgui.Render()
-	Render(screen, imgui.RenderedDrawData(), m.Cache, m.Filter)
+	if m.ClipMask {
+		if m.lmask == nil {
+			w, h := screen.Size()
+			m.lmask, _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
+		} else {
+			w1, h1 := screen.Size()
+			w2, h2 := m.lmask.Size()
+			if w1 != w2 || h1 != h2 {
+				m.lmask.Dispose()
+				m.lmask, _ = ebiten.NewImage(w1, h1, ebiten.FilterDefault)
+			}
+		}
+		RenderMasked(screen, m.lmask, imgui.RenderedDrawData(), m.Cache, m.Filter)
+	} else {
+		Render(screen, imgui.RenderedDrawData(), m.Cache, m.Filter)
+	}
 }
 
 func New(fontAtlas *imgui.FontAtlas) *Manager {

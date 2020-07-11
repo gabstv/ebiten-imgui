@@ -1,15 +1,16 @@
 package renderer
 
-// #include "float.h"
-import "C"
 import (
 	"fmt"
 	"image"
 	"unsafe"
 
+	"github.com/gabstv/ebiten-imgui/internal/native"
 	"github.com/hajimehoshi/ebiten"
 	"github.com/inkyblackness/imgui-go/v2"
 )
+
+var pixelimg *ebiten.Image
 
 // struct ImDrawVert
 // {
@@ -40,13 +41,11 @@ type cImDrawVertx64 struct {
 	Col uint32
 }
 
-var szfloat int
-
 func getVertices(vbuf unsafe.Pointer, vblen, vsize, offpos, offuv, offcol int) []ebiten.Vertex {
-	if szfloat == 4 {
+	if native.SzFloat() == 4 {
 		return getVerticesx32(vbuf, vblen, vsize, offpos, offuv, offcol)
 	}
-	if szfloat == 8 {
+	if native.SzFloat() == 8 {
 		return getVerticesx64(vbuf, vblen, vsize, offpos, offuv, offcol)
 	}
 	panic("invalid char size")
@@ -149,6 +148,16 @@ func getIndices(ibuf unsafe.Pointer, iblen, isize int) []uint16 {
 
 // Render the ImGui drawData into the target *ebiten.Image
 func Render(target *ebiten.Image, drawData imgui.DrawData, txcache map[imgui.TextureID]*ebiten.Image, dfilter ebiten.Filter) {
+	render(target, nil, drawData, txcache, dfilter)
+}
+
+// RenderMasked renders the ImGui drawData into the target *ebiten.Image with ebiten.CompositeModeCopy for masking
+func RenderMasked(target *ebiten.Image, mask *ebiten.Image, drawData imgui.DrawData, txcache map[imgui.TextureID]*ebiten.Image, dfilter ebiten.Filter) {
+	render(target, mask, drawData, txcache, dfilter)
+}
+
+func render(target *ebiten.Image, mask *ebiten.Image, drawData imgui.DrawData, txcache map[imgui.TextureID]*ebiten.Image, dfilter ebiten.Filter) {
+	targetw, targeth := target.Size()
 	if !drawData.Valid() {
 		return
 	}
@@ -158,6 +167,12 @@ func Render(target *ebiten.Image, drawData imgui.DrawData, txcache map[imgui.Tex
 
 	opt := &ebiten.DrawTrianglesOptions{
 		Filter: dfilter,
+	}
+	var opt2 *ebiten.DrawImageOptions
+	if mask != nil {
+		opt2 = &ebiten.DrawImageOptions{
+			CompositeMode: ebiten.CompositeModeSourceOver,
+		}
 	}
 
 	for _, clist := range drawData.CommandLists() {
@@ -172,19 +187,27 @@ func Render(target *ebiten.Image, drawData imgui.DrawData, txcache map[imgui.Tex
 			if cmd.HasUserCallback() {
 				cmd.CallUserCallback(clist)
 			} else {
+				clipRect := cmd.ClipRect()
 				texid := cmd.TextureID()
 				if _, ok := txcache[texid]; !ok {
 					txcache[texid] = getTexture(imgui.CurrentIO().Fonts().TextureDataRGBA32(), dfilter)
 				}
 				tx := txcache[texid]
 				vmultiply(vertices, vbuf, tx.Bounds().Min, tx.Bounds().Max)
-				target.DrawTriangles(vbuf, indices[indexBufferOffset:indexBufferOffset+ecount], txcache[texid], opt)
+				if mask == nil || (clipRect.X == 0 && clipRect.Y == 0 && clipRect.Z == float32(targetw) && clipRect.W == float32(targeth)) {
+					target.DrawTriangles(vbuf, indices[indexBufferOffset:indexBufferOffset+ecount], txcache[texid], opt)
+				} else {
+					mask.Clear()
+					opt2.GeoM.Reset()
+					opt2.GeoM.Translate(float64(clipRect.X), float64(clipRect.Y))
+					mask.DrawTriangles(vbuf, indices[indexBufferOffset:indexBufferOffset+ecount], txcache[texid], opt)
+					target.DrawImage(mask.SubImage(image.Rectangle{
+						Min: image.Pt(int(clipRect.X), int(clipRect.Y)),
+						Max: image.Pt(int(clipRect.Z), int(clipRect.W)),
+					}).(*ebiten.Image), opt2)
+				}
 			}
 			indexBufferOffset += ecount
 		}
 	}
-}
-
-func init() {
-	szfloat = int(C.SzFloat())
 }

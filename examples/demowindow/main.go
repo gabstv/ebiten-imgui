@@ -1,4 +1,4 @@
-// +build example
+//~~ +build example
 
 package main
 
@@ -8,11 +8,15 @@ import (
 	"github.com/gabstv/ebiten-imgui/renderer"
 	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/ebitenutil"
+	"github.com/hajimehoshi/ebiten/inpututil"
 	"github.com/inkyblackness/imgui-go/v2"
 )
 
+// Example with the main Demo window and ClipMask
+
 func main() {
 	mgr := renderer.New(nil)
+	mgr.ClipMask = true
 
 	ebiten.SetWindowSize(1024, 768)
 	ebiten.SetWindowResizable(true)
@@ -48,11 +52,15 @@ func (g *G) Draw(screen *ebiten.Image) {
 	}
 
 	g.mgr.EndFrame(screen)
-	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %.2f", ebiten.CurrentTPS()))
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("TPS: %.2f", ebiten.CurrentTPS()), 10, 2)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("[C]lipMask: %t", g.mgr.ClipMask), 10, 20)
 }
 
 func (g *G) Update(screen *ebiten.Image) error {
 	g.mgr.Update(1.0/60.0, float32(g.w), float32(g.h))
+	if inpututil.IsKeyJustPressed(ebiten.KeyC) {
+		g.mgr.ClipMask = !g.mgr.ClipMask
+	}
 	return nil
 }
 
