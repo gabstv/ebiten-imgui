@@ -16,7 +16,6 @@ import (
 
 func main() {
 	mgr := renderer.New(nil)
-	mgr.ClipMask = true
 
 	ebiten.SetWindowSize(1024, 768)
 	ebiten.SetWindowResizable(true)

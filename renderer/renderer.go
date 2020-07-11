@@ -108,6 +108,7 @@ func New(fontAtlas *imgui.FontAtlas) *Manager {
 		ctx:        imctx,
 		SyncCursor: true,
 		SyncInputs: true,
+		ClipMask:   true,
 	}
 	runtime.SetFinalizer(m, (*Manager).onfinalize)
 	// Build texture atlas
