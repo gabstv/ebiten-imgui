@@ -65,6 +65,8 @@ func (m *Manager) Update(delta, winWidth, winHeight float32) {
 		io.SetMouseButtonDown(0, ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft))
 		io.SetMouseButtonDown(1, ebiten.IsMouseButtonPressed(ebiten.MouseButtonRight))
 		io.SetMouseButtonDown(2, ebiten.IsMouseButtonPressed(ebiten.MouseButtonMiddle))
+		xoff, yoff := ebiten.Wheel()
+		io.AddMouseWheelDelta(float32(xoff), float32(yoff))
 	}
 	if m.SyncInputs {
 		if m.SyncInputsFn != nil {
