@@ -133,6 +133,7 @@ func NewWithContext(ctx *imgui.Context) *Manager {
 		ctx:        ctx,
 		SyncCursor: true,
 		SyncInputs: true,
+		ClipMask:   true,
 	}
 	m.setKeyMapping()
 	return m
