@@ -5,7 +5,6 @@ package main
 import (
 	"fmt"
 	"image/color"
-	"unsafe"
 
 	"github.com/gabstv/ebiten-imgui/renderer"
 	"github.com/hajimehoshi/ebiten"
@@ -19,25 +18,21 @@ func main() {
 	io := imgui.CurrentIO()
 	io.SetClipboard(clipboard{})
 	gg := &G{
-		c: make(map[imgui.TextureID]*ebiten.Image),
+		c: renderer.NewCache(),
 	}
 	ebiten.SetWindowSize(800, 600)
 
 	// Build texture atlas
-	image := io.Fonts().TextureDataAlpha8()
-	rawimg := make([]uint8, image.Width*image.Height)
-	for i := range rawimg {
-		rawimg[i] = 255
-	}
-	image.Pixels = unsafe.Pointer(&rawimg[0])
+	_ = io.Fonts().TextureDataAlpha8()
 	io.Fonts().SetTextureID(1)
+	gg.c.SetFontAtlasTextureID(1)
 
 	ebiten.RunGame(gg)
 }
 
 type G struct {
 	f float32
-	c map[imgui.TextureID]*ebiten.Image
+	c renderer.TextureCache
 }
 
 func (g *G) Draw(screen *ebiten.Image) {

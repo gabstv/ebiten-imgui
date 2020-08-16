@@ -2,20 +2,18 @@ package renderer
 
 import (
 	"runtime"
-	"sync/atomic"
-	"unsafe"
 
 	"github.com/hajimehoshi/ebiten"
 	"github.com/inkyblackness/imgui-go/v2"
 )
 
-var nextTextureID int32
+//var nextTextureID int32
 
 type GetCursorFn func() (x, y float32)
 
 type Manager struct {
 	Filter       ebiten.Filter
-	Cache        map[imgui.TextureID]*ebiten.Image
+	Cache        TextureCache
 	ctx          *imgui.Context
 	cliptxt      string
 	rawatlas     []uint8
@@ -104,7 +102,7 @@ func (m *Manager) EndFrame(screen *ebiten.Image) {
 func New(fontAtlas *imgui.FontAtlas) *Manager {
 	imctx := imgui.CreateContext(fontAtlas)
 	m := &Manager{
-		Cache:      make(map[imgui.TextureID]*ebiten.Image),
+		Cache:      NewCache(),
 		ctx:        imctx,
 		SyncCursor: true,
 		SyncInputs: true,
@@ -113,14 +111,9 @@ func New(fontAtlas *imgui.FontAtlas) *Manager {
 	runtime.SetFinalizer(m, (*Manager).onfinalize)
 	// Build texture atlas
 	io := imgui.CurrentIO()
-	image := io.Fonts().TextureDataAlpha8()
-	m.rawatlas = make([]uint8, image.Width*image.Height)
-	for i := range m.rawatlas {
-		m.rawatlas[i] = 255
-	}
-	image.Pixels = unsafe.Pointer(&m.rawatlas[0])
-	id := atomic.AddInt32(&nextTextureID, 1)
-	io.Fonts().SetTextureID(imgui.TextureID(id))
+	_ = io.Fonts().TextureDataRGBA32() // call this to force imgui to build the font atlas cache
+	io.Fonts().SetTextureID(1)
+	m.Cache.SetFontAtlasTextureID(1)
 
 	m.setKeyMapping()
 
@@ -129,7 +122,7 @@ func New(fontAtlas *imgui.FontAtlas) *Manager {
 
 func NewWithContext(ctx *imgui.Context) *Manager {
 	m := &Manager{
-		Cache:      make(map[imgui.TextureID]*ebiten.Image),
+		Cache:      NewCache(),
 		ctx:        ctx,
 		SyncCursor: true,
 		SyncInputs: true,

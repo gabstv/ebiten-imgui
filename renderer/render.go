@@ -147,16 +147,16 @@ func getIndices(ibuf unsafe.Pointer, iblen, isize int) []uint16 {
 }
 
 // Render the ImGui drawData into the target *ebiten.Image
-func Render(target *ebiten.Image, drawData imgui.DrawData, txcache map[imgui.TextureID]*ebiten.Image, dfilter ebiten.Filter) {
+func Render(target *ebiten.Image, drawData imgui.DrawData, txcache TextureCache, dfilter ebiten.Filter) {
 	render(target, nil, drawData, txcache, dfilter)
 }
 
 // RenderMasked renders the ImGui drawData into the target *ebiten.Image with ebiten.CompositeModeCopy for masking
-func RenderMasked(target *ebiten.Image, mask *ebiten.Image, drawData imgui.DrawData, txcache map[imgui.TextureID]*ebiten.Image, dfilter ebiten.Filter) {
+func RenderMasked(target *ebiten.Image, mask *ebiten.Image, drawData imgui.DrawData, txcache TextureCache, dfilter ebiten.Filter) {
 	render(target, mask, drawData, txcache, dfilter)
 }
 
-func render(target *ebiten.Image, mask *ebiten.Image, drawData imgui.DrawData, txcache map[imgui.TextureID]*ebiten.Image, dfilter ebiten.Filter) {
+func render(target *ebiten.Image, mask *ebiten.Image, drawData imgui.DrawData, txcache TextureCache, dfilter ebiten.Filter) {
 	targetw, targeth := target.Size()
 	if !drawData.Valid() {
 		return
@@ -189,18 +189,21 @@ func render(target *ebiten.Image, mask *ebiten.Image, drawData imgui.DrawData, t
 			} else {
 				clipRect := cmd.ClipRect()
 				texid := cmd.TextureID()
-				if _, ok := txcache[texid]; !ok {
-					txcache[texid] = getTexture(imgui.CurrentIO().Fonts().TextureDataRGBA32(), dfilter)
-				}
-				tx := txcache[texid]
+				tx := txcache.GetTexture(texid)
+				// if _, ok := txcache[texid]; !ok {
+				// 	if texid == 1 {
+				// 		txcache[texid] = getTexture(imgui.CurrentIO().Fonts().TextureDataRGBA32(), dfilter)
+				// 	}
+				// }
+				// tx := txcache[texid]
 				vmultiply(vertices, vbuf, tx.Bounds().Min, tx.Bounds().Max)
 				if mask == nil || (clipRect.X == 0 && clipRect.Y == 0 && clipRect.Z == float32(targetw) && clipRect.W == float32(targeth)) {
-					target.DrawTriangles(vbuf, indices[indexBufferOffset:indexBufferOffset+ecount], txcache[texid], opt)
+					target.DrawTriangles(vbuf, indices[indexBufferOffset:indexBufferOffset+ecount], tx, opt)
 				} else {
 					mask.Clear()
 					opt2.GeoM.Reset()
 					opt2.GeoM.Translate(float64(clipRect.X), float64(clipRect.Y))
-					mask.DrawTriangles(vbuf, indices[indexBufferOffset:indexBufferOffset+ecount], txcache[texid], opt)
+					mask.DrawTriangles(vbuf, indices[indexBufferOffset:indexBufferOffset+ecount], tx, opt)
 					target.DrawImage(mask.SubImage(image.Rectangle{
 						Min: image.Pt(int(clipRect.X), int(clipRect.Y)),
 						Max: image.Pt(int(clipRect.Z), int(clipRect.W)),
