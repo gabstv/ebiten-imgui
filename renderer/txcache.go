@@ -23,6 +23,13 @@ type textureCache struct {
 
 var _ TextureCache = (*textureCache)(nil)
 
+func (c *textureCache) getFontAtlas() *ebiten.Image {
+	if c.fontAtlasImage == nil {
+		c.fontAtlasImage = getTexture(imgui.CurrentIO().Fonts().TextureDataRGBA32(), c.dfilter)
+	}
+	return c.fontAtlasImage
+}
+
 func (c *textureCache) FontAtlasTextureID() imgui.TextureID {
 	return c.fontAtlasID
 }
@@ -33,13 +40,12 @@ func (c *textureCache) SetFontAtlasTextureID(id imgui.TextureID) {
 }
 
 func (c *textureCache) GetTexture(id imgui.TextureID) *ebiten.Image {
-	if c.fontAtlasID == id {
-		if c.fontAtlasImage == nil {
-			c.fontAtlasImage = getTexture(imgui.CurrentIO().Fonts().TextureDataRGBA32(), c.dfilter)
+	if id != c.fontAtlasID {
+		if im, ok := c.cache[id]; ok {
+			return im
 		}
-		return c.fontAtlasImage
 	}
-	return c.cache[id]
+	return c.getFontAtlas()
 }
 
 func (c *textureCache) SetTexture(id imgui.TextureID, img *ebiten.Image) {
