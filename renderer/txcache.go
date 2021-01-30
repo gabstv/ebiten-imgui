@@ -1,7 +1,7 @@
 package renderer
 
 import (
-	"github.com/hajimehoshi/ebiten"
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/inkyblackness/imgui-go/v2"
 )
 
@@ -25,7 +25,7 @@ var _ TextureCache = (*textureCache)(nil)
 
 func (c *textureCache) getFontAtlas() *ebiten.Image {
 	if c.fontAtlasImage == nil {
-		c.fontAtlasImage = getTexture(imgui.CurrentIO().Fonts().TextureDataRGBA32(), c.dfilter)
+		c.fontAtlasImage = getTexture(imgui.CurrentIO().Fonts().TextureDataRGBA32())
 	}
 	return c.fontAtlasImage
 }
@@ -66,6 +66,5 @@ func NewCache() TextureCache {
 		fontAtlasID:    1,
 		cache:          make(map[imgui.TextureID]*ebiten.Image),
 		fontAtlasImage: nil,
-		dfilter:        ebiten.FilterDefault,
 	}
 }

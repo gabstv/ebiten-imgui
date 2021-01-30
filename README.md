@@ -1,7 +1,7 @@
 Dear ImGui for Ebiten
 =====================
 
-A renderer of [imgui-go](https://github.com/inkyblackness/imgui-go) for [Ebiten](https://github.com/hajimehoshi/ebiten)!
+A renderer of [imgui-go](https://github.com/inkyblackness/imgui-go) for [Ebiten](https://github.com/hajimehoshi/ebiten/v2)!
 
 This project is in a pre-alpha stage. The API might change in future versions.
 
@@ -17,8 +17,8 @@ import (
 	"image/color"
 
 	"github.com/gabstv/ebiten-imgui/renderer"
-	"github.com/hajimehoshi/ebiten"
-	"github.com/hajimehoshi/ebiten/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/inkyblackness/imgui-go/v2"
 )
 

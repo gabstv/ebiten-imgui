@@ -7,9 +7,9 @@ import (
 	"image/color"
 
 	"github.com/gabstv/ebiten-imgui/renderer"
-	"github.com/hajimehoshi/ebiten"
-	"github.com/hajimehoshi/ebiten/ebitenutil"
-	"github.com/inkyblackness/imgui-go/v2"
+	ebiten "github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	imgui "github.com/inkyblackness/imgui-go/v2"
 )
 
 func main() {

@@ -3,7 +3,7 @@ package renderer
 import (
 	"runtime"
 
-	"github.com/hajimehoshi/ebiten"
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/inkyblackness/imgui-go/v2"
 )
 
@@ -84,13 +84,13 @@ func (m *Manager) EndFrame(screen *ebiten.Image) {
 	if m.ClipMask {
 		if m.lmask == nil {
 			w, h := screen.Size()
-			m.lmask, _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
+			m.lmask = ebiten.NewImage(w, h)
 		} else {
 			w1, h1 := screen.Size()
 			w2, h2 := m.lmask.Size()
 			if w1 != w2 || h1 != h2 {
 				m.lmask.Dispose()
-				m.lmask, _ = ebiten.NewImage(w1, h1, ebiten.FilterDefault)
+				m.lmask = ebiten.NewImage(w1, h1)
 			}
 		}
 		RenderMasked(screen, m.lmask, imgui.RenderedDrawData(), m.Cache, m.Filter)

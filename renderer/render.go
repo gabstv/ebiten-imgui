@@ -6,7 +6,7 @@ import (
 	"unsafe"
 
 	"github.com/gabstv/ebiten-imgui/internal/native"
-	"github.com/hajimehoshi/ebiten"
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/inkyblackness/imgui-go/v2"
 )
 
@@ -112,10 +112,10 @@ func vmultiply(v, vbuf []ebiten.Vertex, bmin, bmax image.Point) {
 	}
 }
 
-func getTexture(tex *imgui.RGBA32Image, filter ebiten.Filter) *ebiten.Image {
+func getTexture(tex *imgui.RGBA32Image) *ebiten.Image {
 	n := tex.Width * tex.Height
 	pix := (*[1 << 28]uint8)(tex.Pixels)[: n*4 : n*4]
-	img, _ := ebiten.NewImage(tex.Width, tex.Height, filter)
+	img := ebiten.NewImage(tex.Width, tex.Height)
 	img.ReplacePixels(pix)
 	return img
 }

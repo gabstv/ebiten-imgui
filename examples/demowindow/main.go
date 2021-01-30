@@ -6,9 +6,9 @@ import (
 	"fmt"
 
 	"github.com/gabstv/ebiten-imgui/renderer"
-	"github.com/hajimehoshi/ebiten"
-	"github.com/hajimehoshi/ebiten/ebitenutil"
-	"github.com/hajimehoshi/ebiten/inpututil"
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/inkyblackness/imgui-go/v2"
 )
 
@@ -55,7 +55,7 @@ func (g *G) Draw(screen *ebiten.Image) {
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("[C]lipMask: %t", g.mgr.ClipMask), 10, 20)
 }
 
-func (g *G) Update(screen *ebiten.Image) error {
+func (g *G) Update() error {
 	g.mgr.Update(1.0/60.0, float32(g.w), float32(g.h))
 	if inpututil.IsKeyJustPressed(ebiten.KeyC) {
 		g.mgr.ClipMask = !g.mgr.ClipMask
