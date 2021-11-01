@@ -70,7 +70,7 @@ func (g *G) Draw(screen *ebiten.Image) {
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %.2f", ebiten.CurrentTPS()))
 }
 
-func (g *G) Update(screen *ebiten.Image) error {
+func (g *G) Update() error {
 	g.mgr.Update(1.0/60.0, 800, 600)
 	return nil
 }
