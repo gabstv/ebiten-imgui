@@ -7,7 +7,7 @@ import (
 
 	"github.com/gabstv/ebiten-imgui/internal/native"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/inkyblackness/imgui-go/v2"
+	"github.com/inkyblackness/imgui-go/v4"
 )
 
 var pixelimg *ebiten.Image

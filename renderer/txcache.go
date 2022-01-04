@@ -2,7 +2,7 @@ package renderer
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/inkyblackness/imgui-go/v2"
+	"github.com/inkyblackness/imgui-go/v4"
 )
 
 type TextureCache interface {

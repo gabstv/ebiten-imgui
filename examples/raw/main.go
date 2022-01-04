@@ -9,7 +9,7 @@ import (
 	"github.com/gabstv/ebiten-imgui/renderer"
 	ebiten "github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	imgui "github.com/inkyblackness/imgui-go/v2"
+	imgui "github.com/inkyblackness/imgui-go/v4"
 )
 
 func main() {
@@ -50,11 +50,11 @@ func (g *G) Draw(screen *ebiten.Image) {
 	imgui.SliderFloat("float", &g.f, 0.0, 1.0) // Edit 1 float using a slider from 0.0f to 1.0f
 	imgui.Render()
 
-	renderer.Render(screen, imgui.RenderedDrawData(), g.c, ebiten.FilterDefault)
+	renderer.Render(screen, imgui.RenderedDrawData(), g.c, ebiten.FilterNearest)
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %.2f", ebiten.CurrentTPS()))
 }
 
-func (g *G) Update(screen *ebiten.Image) error {
+func (g *G) Update() error {
 	return nil
 }
 

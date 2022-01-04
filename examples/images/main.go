@@ -5,11 +5,13 @@ package main
 import (
 	"fmt"
 	"image/color"
+	_ "image/png"
+	"log"
 
 	"github.com/gabstv/ebiten-imgui/renderer"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	"github.com/inkyblackness/imgui-go/v2"
+	"github.com/inkyblackness/imgui-go/v4"
 )
 
 var exampleImage *ebiten.Image
@@ -23,7 +25,10 @@ func main() {
 		mgr: mgr,
 	}
 
-	exampleImage, _, _ = ebitenutil.NewImageFromFile("example.png", ebiten.FilterNearest)
+	exampleImage, _, err := ebitenutil.NewImageFromFile("example.png")
+	if err != nil {
+		log.Fatal(err)
+	}
 	mgr.Cache.SetTexture(10, exampleImage) // Texture ID 10 will contain this example image
 
 	ebiten.RunGame(gg)
@@ -42,14 +47,13 @@ func (g *G) Draw(screen *ebiten.Image) {
 	{
 		imgui.Text("Hello, images!")
 		imgui.Image(10, imgui.Vec2{64, 64})
-
 	}
 
 	g.mgr.EndFrame(screen)
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %.2f", ebiten.CurrentTPS()))
 }
 
-func (g *G) Update(screen *ebiten.Image) error {
+func (g *G) Update() error {
 	g.mgr.Update(1.0/60.0, 800, 600)
 	return nil
 }
