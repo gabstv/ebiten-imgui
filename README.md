@@ -50,7 +50,7 @@ func (g *G) Draw(screen *ebiten.Image) {
 }
 
 func (g *G) Update() error {
-	g.mgr.Update(1.0/60.0, 800, 600)
+	g.mgr.Update(1.0/60.0)
 	g.mgr.BeginFrame()
 	{
 		imgui.Text("ภาษาไทย测试조선말")                        // To display these, you'll need to register a compatible font
