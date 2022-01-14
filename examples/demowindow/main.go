@@ -1,3 +1,4 @@
+//go:build example
 // +build example
 
 package main
@@ -38,8 +39,17 @@ type G struct {
 }
 
 func (g *G) Draw(screen *ebiten.Image) {
-	g.mgr.BeginFrame()
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("TPS: %.2f", ebiten.CurrentTPS()), 10, 2)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("[C]lipMask: %t", g.mgr.ClipMask), 10, 20)
+	g.mgr.Draw(screen)
+}
 
+func (g *G) Update() error {
+	g.mgr.Update(1.0 / 60.0)
+	if inpututil.IsKeyJustPressed(ebiten.KeyC) {
+		g.mgr.ClipMask = !g.mgr.ClipMask
+	}
+	g.mgr.BeginFrame()
 	{
 		imgui.Checkbox("Retina", &g.retina) // Edit bools storing our window open/close state
 
@@ -49,17 +59,7 @@ func (g *G) Draw(screen *ebiten.Image) {
 			imgui.ShowDemoWindow(&g.showDemoWindow)
 		}
 	}
-
-	g.mgr.EndFrame(screen)
-	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("TPS: %.2f", ebiten.CurrentTPS()), 10, 2)
-	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("[C]lipMask: %t", g.mgr.ClipMask), 10, 20)
-}
-
-func (g *G) Update() error {
-	g.mgr.Update(1.0/60.0, float32(g.w), float32(g.h))
-	if inpututil.IsKeyJustPressed(ebiten.KeyC) {
-		g.mgr.ClipMask = !g.mgr.ClipMask
-	}
+	g.mgr.EndFrame()
 	return nil
 }
 
@@ -76,5 +76,6 @@ func (g *G) Layout(outsideWidth, outsideHeight int) (int, int) {
 		g.w = outsideWidth
 		g.h = outsideHeight
 	}
+	g.mgr.SetDisplaySize(float32(g.w), float32(g.h))
 	return g.w, g.h
 }

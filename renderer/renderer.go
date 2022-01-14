@@ -23,6 +23,11 @@ type Manager struct {
 	SyncInputs   bool
 	lmask        *ebiten.Image
 	ClipMask     bool
+
+	width        float32
+	height       float32
+	screenWidth  int
+	screenHeight int
 }
 
 func (m *Manager) onfinalize() {
@@ -48,9 +53,18 @@ func (m *Manager) SetText(text string) {
 	m.cliptxt = text
 }
 
-func (m *Manager) Update(delta, winWidth, winHeight float32) {
+func (m *Manager) SetDisplaySize(width, height float32) {
+	m.width = width
+	m.height = height
+}
+
+func (m *Manager) Update(delta float32) {
 	io := imgui.CurrentIO()
-	io.SetDisplaySize(imgui.Vec2{X: winWidth, Y: winHeight})
+	if m.width > 0 || m.height > 0 {
+		io.SetDisplaySize(imgui.Vec2{X: m.width, Y: m.height})
+	} else if m.screenWidth > 0 || m.screenHeight > 0 {
+		io.SetDisplaySize(imgui.Vec2{X: float32(m.screenWidth), Y: float32(m.screenHeight)})
+	}
 	io.SetDeltaTime(delta)
 	if m.SyncCursor {
 		if m.GetCursor != nil {
@@ -79,7 +93,13 @@ func (m *Manager) BeginFrame() {
 	imgui.NewFrame()
 }
 
-func (m *Manager) EndFrame(screen *ebiten.Image) {
+func (m *Manager) EndFrame() {
+	imgui.EndFrame()
+}
+
+func (m *Manager) Draw(screen *ebiten.Image) {
+	m.screenWidth = screen.Bounds().Dx()
+	m.screenHeight = screen.Bounds().Dy()
 	imgui.Render()
 	if m.ClipMask {
 		if m.lmask == nil {
