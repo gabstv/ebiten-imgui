@@ -1,3 +1,4 @@
+//go:build example
 // +build example
 
 package main
@@ -35,6 +36,12 @@ type G struct {
 
 func (g *G) Draw(screen *ebiten.Image) {
 	screen.Fill(color.RGBA{uint8(g.clearColor[0] * 255), uint8(g.clearColor[1] * 255), uint8(g.clearColor[2] * 255), 255})
+	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %.2f", ebiten.CurrentTPS()))
+	g.mgr.Draw(screen)
+}
+
+func (g *G) Update() error {
+	g.mgr.Update(1.0 / 60.0)
 	g.mgr.BeginFrame()
 
 	{
@@ -59,15 +66,11 @@ func (g *G) Draw(screen *ebiten.Image) {
 		//	millisPerSecond/imgui.CurrentIO().Framerate(), imgui.CurrentIO().Framerate()))
 	}
 
-	g.mgr.EndFrame(screen)
-	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %.2f", ebiten.CurrentTPS()))
-}
-
-func (g *G) Update() error {
-	g.mgr.Update(1.0/60.0, 800, 600)
+	g.mgr.EndFrame()
 	return nil
 }
 
 func (g *G) Layout(outsideWidth, outsideHeight int) (int, int) {
+	g.mgr.SetDisplaySize(float32(800), float32(600))
 	return 800, 600
 }
