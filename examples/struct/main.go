@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"image/color"
 
+	"github.com/gabstv/ebiten-imgui/imcolor"
 	"github.com/gabstv/ebiten-imgui/renderer"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -61,6 +62,16 @@ func (g *G) Update() error {
 		imgui.Text(fmt.Sprintf("counter = %d", g.counter))
 
 		imgui.InputText("Name", &g.name)
+
+		xcol := imcolor.ToVec4(color.RGBA{
+			R: 0xFF,
+			G: 0x00,
+			B: 0xFF,
+			A: 0x99,
+		})
+		imgui.PushStyleColor(imgui.StyleColorText, xcol)
+		imgui.Text(fmt.Sprintf("fps = %f", ebiten.CurrentFPS()))
+		imgui.PopStyleColor()
 
 		//imgui.Text(fmt.Sprintf("Application average %.3f ms/frame (%.1f FPS)",
 		//	millisPerSecond/imgui.CurrentIO().Framerate(), imgui.CurrentIO().Framerate()))
