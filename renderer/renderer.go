@@ -12,35 +12,23 @@ import (
 type GetCursorFn func() (x, y float32)
 
 type Manager struct {
-	Filter       ebiten.Filter
-	Cache        TextureCache
-	ctx          *imgui.Context
-	cliptxt      string
-	rawatlas     []uint8
-	GetCursor    GetCursorFn
-	SyncInputsFn func()
-	SyncCursor   bool
-	SyncInputs   bool
-	lmask        *ebiten.Image
-	ClipMask     bool
+	Filter             ebiten.Filter
+	Cache              TextureCache
+	ctx                *imgui.Context
+	cliptxt            string
+	rawatlas           []uint8
+	GetCursor          GetCursorFn
+	SyncInputsFn       func()
+	SyncCursor         bool
+	SyncInputs         bool
+	ControlCursorShape bool
+	lmask              *ebiten.Image
+	ClipMask           bool
 
 	width        float32
 	height       float32
 	screenWidth  int
 	screenHeight int
-}
-
-func (m *Manager) onfinalize() {
-	runtime.SetFinalizer(m, nil)
-	m.ctx.Destroy()
-}
-
-func (m *Manager) setKeyMapping() {
-	// Keyboard mapping. ImGui will use those indices to peek into the io.KeysDown[] array.
-	io := imgui.CurrentIO()
-	for imguiKey, nativeKey := range keys {
-		io.KeyMap(imguiKey, nativeKey)
-	}
 }
 
 // Text implements imgui clipboard
@@ -79,6 +67,7 @@ func (m *Manager) Update(delta float32) {
 		io.SetMouseButtonDown(2, ebiten.IsMouseButtonPressed(ebiten.MouseButtonMiddle))
 		xoff, yoff := ebiten.Wheel()
 		io.AddMouseWheelDelta(float32(xoff), float32(yoff))
+		m.controlCursorShape()
 	}
 	if m.SyncInputs {
 		if m.SyncInputsFn != nil {
@@ -122,11 +111,12 @@ func (m *Manager) Draw(screen *ebiten.Image) {
 func New(fontAtlas *imgui.FontAtlas) *Manager {
 	imctx := imgui.CreateContext(fontAtlas)
 	m := &Manager{
-		Cache:      NewCache(),
-		ctx:        imctx,
-		SyncCursor: true,
-		SyncInputs: true,
-		ClipMask:   true,
+		Cache:              NewCache(),
+		ctx:                imctx,
+		SyncCursor:         true,
+		SyncInputs:         true,
+		ClipMask:           true,
+		ControlCursorShape: true,
 	}
 	runtime.SetFinalizer(m, (*Manager).onfinalize)
 	// Build texture atlas
@@ -142,12 +132,50 @@ func New(fontAtlas *imgui.FontAtlas) *Manager {
 
 func NewWithContext(ctx *imgui.Context) *Manager {
 	m := &Manager{
-		Cache:      NewCache(),
-		ctx:        ctx,
-		SyncCursor: true,
-		SyncInputs: true,
-		ClipMask:   true,
+		Cache:              NewCache(),
+		ctx:                ctx,
+		SyncCursor:         true,
+		SyncInputs:         true,
+		ClipMask:           true,
+		ControlCursorShape: true,
 	}
 	m.setKeyMapping()
 	return m
+}
+
+func (m *Manager) controlCursorShape() {
+	if !m.ControlCursorShape {
+		return
+	}
+	switch imgui.MouseCursor() {
+	case imgui.MouseCursorNone:
+		ebiten.SetCursorShape(ebiten.CursorShapeDefault)
+	case imgui.MouseCursorArrow:
+		ebiten.SetCursorShape(ebiten.CursorShapeDefault)
+	case imgui.MouseCursorTextInput:
+		ebiten.SetCursorShape(ebiten.CursorShapeText)
+	case imgui.MouseCursorResizeAll:
+		ebiten.SetCursorShape(ebiten.CursorShapeCrosshair)
+	case imgui.MouseCursorResizeEW:
+		ebiten.SetCursorShape(ebiten.CursorShapeEWResize)
+	case imgui.MouseCursorResizeNS:
+		ebiten.SetCursorShape(ebiten.CursorShapeNSResize)
+	case imgui.MouseCursorHand:
+		ebiten.SetCursorShape(ebiten.CursorShapePointer)
+	default:
+		ebiten.SetCursorShape(ebiten.CursorShapeDefault)
+	}
+}
+
+func (m *Manager) onfinalize() {
+	runtime.SetFinalizer(m, nil)
+	m.ctx.Destroy()
+}
+
+func (m *Manager) setKeyMapping() {
+	// Keyboard mapping. ImGui will use those indices to peek into the io.KeysDown[] array.
+	io := imgui.CurrentIO()
+	for imguiKey, nativeKey := range keys {
+		io.KeyMap(imguiKey, nativeKey)
+	}
 }
