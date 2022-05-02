@@ -10,8 +10,6 @@ import (
 	"github.com/inkyblackness/imgui-go/v4"
 )
 
-var pixelimg *ebiten.Image
-
 // struct ImDrawVert
 // {
 //     ImVec2  pos; // 2 floats
@@ -54,14 +52,11 @@ func getVertices(vbuf unsafe.Pointer, vblen, vsize, offpos, offuv, offcol int) [
 func getVerticesx32(vbuf unsafe.Pointer, vblen, vsize, offpos, offuv, offcol int) []ebiten.Vertex {
 	n := vblen / vsize
 	vertices := make([]ebiten.Vertex, 0, vblen/vsize)
+	if offpos != 0 || offuv != 8 || offcol != 16 {
+		panic("TODO: invalid vertex layout")
+	}
 	rawverts := (*[1 << 28]cImDrawVertx32)(vbuf)[:n:n]
 	for i := 0; i < n; i++ {
-		c0 := rawverts[i].Col
-		c00 := uint8(c0 & 0xFF)
-		c01 := (c0 >> 8) & 0xFF
-		c02 := (c0 >> 16) & 0xFF
-		c03 := (c0 >> 24) & 0xFF
-		_, _, _, _ = c00, c01, c02, c03
 		vertices = append(vertices, ebiten.Vertex{
 			SrcX:   rawverts[i].UV.X,
 			SrcY:   rawverts[i].UV.Y,
@@ -79,6 +74,9 @@ func getVerticesx32(vbuf unsafe.Pointer, vblen, vsize, offpos, offuv, offcol int
 func getVerticesx64(vbuf unsafe.Pointer, vblen, vsize, offpos, offuv, offcol int) []ebiten.Vertex {
 	n := vblen / vsize
 	vertices := make([]ebiten.Vertex, 0, vblen/vsize)
+	if offpos != 0 || offuv != 8 || offcol != 16 {
+		panic("TODO: invalid vertex layout (64)")
+	}
 	rawverts := (*[1 << 28]cImDrawVertx64)(vbuf)[:n:n]
 	for i := 0; i < n; i++ {
 		vertices = append(vertices, ebiten.Vertex{
@@ -190,12 +188,6 @@ func render(target *ebiten.Image, mask *ebiten.Image, drawData imgui.DrawData, t
 				clipRect := cmd.ClipRect()
 				texid := cmd.TextureID()
 				tx := txcache.GetTexture(texid)
-				// if _, ok := txcache[texid]; !ok {
-				// 	if texid == 1 {
-				// 		txcache[texid] = getTexture(imgui.CurrentIO().Fonts().TextureDataRGBA32(), dfilter)
-				// 	}
-				// }
-				// tx := txcache[texid]
 				vmultiply(vertices, vbuf, tx.Bounds().Min, tx.Bounds().Max)
 				if mask == nil || (clipRect.X == 0 && clipRect.Y == 0 && clipRect.Z == float32(targetw) && clipRect.W == float32(targeth)) {
 					target.DrawTriangles(vbuf, indices[indexBufferOffset:indexBufferOffset+ecount], tx, opt)

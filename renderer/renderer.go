@@ -16,7 +16,6 @@ type Manager struct {
 	Cache              TextureCache
 	ctx                *imgui.Context
 	cliptxt            string
-	rawatlas           []uint8
 	GetCursor          GetCursorFn
 	SyncInputsFn       func()
 	SyncCursor         bool
@@ -29,6 +28,8 @@ type Manager struct {
 	height       float32
 	screenWidth  int
 	screenHeight int
+
+	inputChars []rune
 }
 
 // Text implements imgui clipboard
@@ -73,7 +74,7 @@ func (m *Manager) Update(delta float32) {
 		if m.SyncInputsFn != nil {
 			m.SyncInputsFn()
 		} else {
-			sendInput(&io)
+			m.inputChars = sendInput(&io, m.inputChars)
 		}
 	}
 }
@@ -117,6 +118,7 @@ func New(fontAtlas *imgui.FontAtlas) *Manager {
 		SyncInputs:         true,
 		ClipMask:           true,
 		ControlCursorShape: true,
+		inputChars:         make([]rune, 0, 256),
 	}
 	runtime.SetFinalizer(m, (*Manager).onfinalize)
 	// Build texture atlas

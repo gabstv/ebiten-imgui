@@ -30,7 +30,7 @@ var keys = map[int]int{
 	imgui.KeyZ:          int(ebiten.KeyZ),
 }
 
-func sendInput(io *imgui.IO) {
+func sendInput(io *imgui.IO, inputChars []rune) []rune {
 
 	// Ebiten hides the LeftAlt RightAlt implementation (inside the uiDriver()), so
 	// here only the left alt is sent
@@ -50,9 +50,10 @@ func sendInput(io *imgui.IO) {
 		io.KeyCtrl(0, 0)
 	}
 	// TODO: get KeySuper somehow (GLFW: KeyLeftSuper    = Key(343), R: 347)
-
-	if chars := ebiten.InputChars(); len(chars) > 0 {
-		io.AddInputCharacters(string(chars))
+	inputChars = ebiten.AppendInputChars(inputChars)
+	if len(inputChars) > 0 {
+		io.AddInputCharacters(string(inputChars))
+		inputChars = inputChars[:0]
 	}
 	for _, iv := range keys {
 		if inpututil.IsKeyJustPressed(ebiten.Key(iv)) {
@@ -62,4 +63,5 @@ func sendInput(io *imgui.IO) {
 			io.KeyRelease(iv)
 		}
 	}
+	return inputChars
 }
