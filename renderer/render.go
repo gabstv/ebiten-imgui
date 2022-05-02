@@ -112,7 +112,19 @@ func vmultiply(v, vbuf []ebiten.Vertex, bmin, bmax image.Point) {
 
 func getTexture(tex *imgui.RGBA32Image) *ebiten.Image {
 	n := tex.Width * tex.Height
-	pix := (*[1 << 28]uint8)(tex.Pixels)[: n*4 : n*4]
+	srcPix := (*[1 << 28]uint8)(tex.Pixels)[: n*4 : n*4]
+	pix := make([]uint8, n*4)
+	// Note: Ebiten expects colors in premultiplied-alpha form.
+	// However, the imgui library exports pixmaps in straight-alpha form.
+	// Also, not doing this modification in-place,
+	// as srcPix points right into an imgui-owned data structure.
+	for i := 0; i < n; i++ {
+		alpha := uint16(srcPix[4*i+3])
+		pix[4*i] = uint8((uint16(srcPix[4*i]) * alpha + 127) / 255)
+		pix[4*i+1] = uint8((uint16(srcPix[4*i+1]) * alpha + 127) / 255)
+		pix[4*i+2] = uint8((uint16(srcPix[4*i+2]) * alpha + 127) / 255)
+		pix[4*i+3] = uint8(alpha)
+	}
 	img := ebiten.NewImage(tex.Width, tex.Height)
 	img.ReplacePixels(pix)
 	return img
