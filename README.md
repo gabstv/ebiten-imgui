@@ -1,5 +1,5 @@
-Dear ImGui for Ebiten
-=====================
+Dear ImGui for Ebitengine
+=========================
 
 A renderer of [imgui-go](https://github.com/inkyblackness/imgui-go) for [Ebiten](https://github.com/hajimehoshi/ebiten/v2)!
 
