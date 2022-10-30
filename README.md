@@ -1,7 +1,7 @@
 Dear ImGui for Ebitengine
 =========================
 
-A renderer of [imgui-go](https://github.com/inkyblackness/imgui-go) for [Ebiten](https://github.com/hajimehoshi/ebiten/v2)!
+A renderer of [cimgui-go](https://github.com/AllenDang/cimgui-go) for [Ebitengine](https://github.com/hajimehoshi/ebiten/)!
 
 This project is in a pre-alpha stage. The API might change in future versions.
 
@@ -19,7 +19,8 @@ import (
 	"github.com/gabstv/ebiten-imgui/renderer"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	"github.com/inkyblackness/imgui-go/v4"
+
+	imgui "github.com/AllenDang/cimgui-go"
 )
 
 func main() {
@@ -28,7 +29,8 @@ func main() {
 	ebiten.SetWindowSize(800, 600)
 
 	gg := &G{
-		mgr: mgr,
+		mgr:        mgr,
+		clearColor: [3]*float32{new(float32), new(float32), new(float32)},
 	}
 
 	ebiten.RunGame(gg)
@@ -37,26 +39,27 @@ func main() {
 type G struct {
 	mgr *renderer.Manager
 	// demo members:
-	clearColor [3]float32
+	clearColor [3]*float32
 	floatVal   float32
 	counter    int
 	name       string
 }
 
 func (g *G) Draw(screen *ebiten.Image) {
-	screen.Fill(color.RGBA{uint8(g.clearColor[0] * 255), uint8(g.clearColor[1] * 255), uint8(g.clearColor[2] * 255), 255})
+	screen.Fill(color.RGBA{uint8(*g.clearColor[0] * 255), uint8(*g.clearColor[1] * 255), uint8(*g.clearColor[2] * 255), 255})
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %.2f", ebiten.CurrentTPS()))
 	g.mgr.Draw(screen)
 }
 
 func (g *G) Update() error {
-	g.mgr.Update(1.0/60.0)
+	g.mgr.Update(1.0 / 60.0)
 	g.mgr.BeginFrame()
+
 	{
 		imgui.Text("ภาษาไทย测试조선말")                        // To display these, you'll need to register a compatible font
 		imgui.Text("Hello, world!")                       // Display some text
 		imgui.SliderFloat("float", &g.floatVal, 0.0, 1.0) // Edit 1 float using a slider from 0.0f to 1.0f
-		imgui.ColorEdit3("clear color", &g.clearColor)    // Edit 3 floats representing a color
+		imgui.ColorEdit3("clear color", g.clearColor)     // Edit 3 floats representing a color
 
 		//imgui.Checkbox("Demo Window", &showDemoWindow) // Edit bools storing our window open/close state
 		//imgui.Checkbox("Go Demo Window", &showGoDemoWindow)
@@ -68,8 +71,14 @@ func (g *G) Update() error {
 		imgui.SameLine()
 		imgui.Text(fmt.Sprintf("counter = %d", g.counter))
 
-		imgui.InputText("Name", &g.name)
+		// imgui.InputText("Name", &g.name) // TODO: not implemented in cimgui-go
+
+		imgui.Text(fmt.Sprintf("fps = %f", ebiten.CurrentFPS()))
+
+		//imgui.Text(fmt.Sprintf("Application average %.3f ms/frame (%.1f FPS)",
+		//	millisPerSecond/imgui.CurrentIO().Framerate(), imgui.CurrentIO().Framerate()))
 	}
+
 	g.mgr.EndFrame()
 	return nil
 }
