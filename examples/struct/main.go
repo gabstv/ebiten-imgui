@@ -17,12 +17,14 @@ import (
 func main() {
 	mgr := renderer.New(nil)
 
-	ebiten.SetWindowSize(800, 600)
-
 	gg := &G{
 		mgr:        mgr,
+		name:       "Hello, Dear ImGui",
 		clearColor: [3]*float32{new(float32), new(float32), new(float32)},
 	}
+
+	ebiten.SetWindowSize(800, 600)
+	ebiten.SetWindowTitle(gg.name)
 
 	ebiten.RunGame(gg)
 }
@@ -40,6 +42,10 @@ func (g *G) Draw(screen *ebiten.Image) {
 	screen.Fill(color.RGBA{uint8(*g.clearColor[0] * 255), uint8(*g.clearColor[1] * 255), uint8(*g.clearColor[2] * 255), 255})
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %.2f", ebiten.CurrentTPS()))
 	g.mgr.Draw(screen)
+}
+
+func InputText(label string, buf *string) bool {
+	return imgui.InputTextWithHint(label, "", buf, 0, nil)
 }
 
 func (g *G) Update() error {
@@ -62,7 +68,9 @@ func (g *G) Update() error {
 		imgui.SameLine()
 		imgui.Text(fmt.Sprintf("counter = %d", g.counter))
 
-		// imgui.InputText("Name", &g.name) // TODO: not implemented in cimgui-go
+		if InputText("Window title", &g.name) {
+			ebiten.SetWindowTitle(g.name)
+		}
 
 		/* xcol := imcolor.ToVec4(color.RGBA{
 			R: 0xFF,
