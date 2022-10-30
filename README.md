@@ -16,6 +16,7 @@ import (
 	"fmt"
 	"image/color"
 
+	"github.com/gabstv/ebiten-imgui/imcolor"
 	"github.com/gabstv/ebiten-imgui/renderer"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -81,16 +82,16 @@ func (g *G) Update() error {
 			ebiten.SetWindowTitle(g.name)
 		}
 
-		/* xcol := imcolor.ToVec4(color.RGBA{
+		xcol := imcolor.ToVec4(color.RGBA{
 			R: 0xFF,
 			G: 0x00,
 			B: 0xFF,
 			A: 0x99,
-		}) */
+		})
 
-		// imgui.PopStyleColor(imgui.StyleColorText, xcol) // TODO: not implemented in cimgui-go
+		imgui.PushStyleColor_Vec4(imgui.ImGuiCol_Text, xcol)
 		imgui.Text(fmt.Sprintf("fps = %f", ebiten.CurrentFPS()))
-		// imgui.PopStyleColor()
+		imgui.PopStyleColor()
 
 		//imgui.Text(fmt.Sprintf("Application average %.3f ms/frame (%.1f FPS)",
 		//	millisPerSecond/imgui.CurrentIO().Framerate(), imgui.CurrentIO().Framerate()))
