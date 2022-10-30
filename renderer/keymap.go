@@ -3,64 +3,64 @@ package renderer
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"github.com/inkyblackness/imgui-go/v4"
+
+	"github.com/AllenDang/cimgui-go"
 )
 
-var keys = map[int]int{
-	imgui.KeyTab:        int(ebiten.KeyTab),
-	imgui.KeyLeftArrow:  int(ebiten.KeyLeft),
-	imgui.KeyRightArrow: int(ebiten.KeyRight),
-	imgui.KeyUpArrow:    int(ebiten.KeyUp),
-	imgui.KeyDownArrow:  int(ebiten.KeyDown),
-	imgui.KeyPageUp:     int(ebiten.KeyPageUp),
-	imgui.KeyPageDown:   int(ebiten.KeyPageDown),
-	imgui.KeyHome:       int(ebiten.KeyHome),
-	imgui.KeyEnd:        int(ebiten.KeyEnd),
-	imgui.KeyInsert:     int(ebiten.KeyInsert),
-	imgui.KeyDelete:     int(ebiten.KeyDelete),
-	imgui.KeyBackspace:  int(ebiten.KeyBackspace),
-	imgui.KeySpace:      int(ebiten.KeySpace),
-	imgui.KeyEnter:      int(ebiten.KeyEnter),
-	imgui.KeyEscape:     int(ebiten.KeyEscape),
-	imgui.KeyA:          int(ebiten.KeyA),
-	imgui.KeyC:          int(ebiten.KeyC),
-	imgui.KeyV:          int(ebiten.KeyV),
-	imgui.KeyX:          int(ebiten.KeyX),
-	imgui.KeyY:          int(ebiten.KeyY),
-	imgui.KeyZ:          int(ebiten.KeyZ),
+var keys = map[cimgui.ImGuiKey]int{
+	cimgui.ImGuiKey_Tab:        int(ebiten.KeyTab),
+	cimgui.ImGuiKey_LeftArrow:  int(ebiten.KeyLeft),
+	cimgui.ImGuiKey_RightArrow: int(ebiten.KeyRight),
+	cimgui.ImGuiKey_UpArrow:    int(ebiten.KeyUp),
+	cimgui.ImGuiKey_DownArrow:  int(ebiten.KeyDown),
+	cimgui.ImGuiKey_PageUp:     int(ebiten.KeyPageUp),
+	cimgui.ImGuiKey_PageDown:   int(ebiten.KeyPageDown),
+	cimgui.ImGuiKey_Home:       int(ebiten.KeyHome),
+	cimgui.ImGuiKey_End:        int(ebiten.KeyEnd),
+	cimgui.ImGuiKey_Insert:     int(ebiten.KeyInsert),
+	cimgui.ImGuiKey_Delete:     int(ebiten.KeyDelete),
+	cimgui.ImGuiKey_Backspace:  int(ebiten.KeyBackspace),
+	cimgui.ImGuiKey_Space:      int(ebiten.KeySpace),
+	cimgui.ImGuiKey_Enter:      int(ebiten.KeyEnter),
+	cimgui.ImGuiKey_Escape:     int(ebiten.KeyEscape),
+	cimgui.ImGuiKey_A:          int(ebiten.KeyA),
+	cimgui.ImGuiKey_C:          int(ebiten.KeyC),
+	cimgui.ImGuiKey_V:          int(ebiten.KeyV),
+	cimgui.ImGuiKey_X:          int(ebiten.KeyX),
+	cimgui.ImGuiKey_Y:          int(ebiten.KeyY),
+	cimgui.ImGuiKey_Z:          int(ebiten.KeyZ),
 }
 
-func sendInput(io *imgui.IO, inputChars []rune) []rune {
-
+func sendInput(io cimgui.ImGuiIO, inputChars []rune) []rune {
 	// Ebiten hides the LeftAlt RightAlt implementation (inside the uiDriver()), so
 	// here only the left alt is sent
 	if ebiten.IsKeyPressed(ebiten.KeyAlt) {
-		io.KeyAlt(1, 0)
+		io.SetKeyAlt(true)
 	} else {
-		io.KeyAlt(0, 0)
+		io.SetKeyAlt(false)
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyShift) {
-		io.KeyShift(1, 0)
+		io.SetKeyShift(true)
 	} else {
-		io.KeyShift(0, 0)
+		io.SetKeyShift(false)
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyControl) {
-		io.KeyCtrl(1, 0)
+		io.SetKeyCtrl(true)
 	} else {
-		io.KeyCtrl(0, 0)
+		io.SetKeyCtrl(false)
 	}
 	// TODO: get KeySuper somehow (GLFW: KeyLeftSuper    = Key(343), R: 347)
 	inputChars = ebiten.AppendInputChars(inputChars)
 	if len(inputChars) > 0 {
-		io.AddInputCharacters(string(inputChars))
+		io.AddInputCharactersUTF8(string(inputChars))
 		inputChars = inputChars[:0]
 	}
-	for _, iv := range keys {
+	for ik, iv := range keys {
 		if inpututil.IsKeyJustPressed(ebiten.Key(iv)) {
-			io.KeyPress(iv)
+			io.AddKeyEvent(ik, true)
 		}
 		if inpututil.IsKeyJustReleased(ebiten.Key(iv)) {
-			io.KeyRelease(iv)
+			io.AddKeyEvent(ik, false)
 		}
 	}
 	return inputChars

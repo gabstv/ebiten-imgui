@@ -2,22 +2,23 @@ package renderer
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/inkyblackness/imgui-go/v4"
+
+	"github.com/AllenDang/cimgui-go"
 )
 
 type TextureCache interface {
-	FontAtlasTextureID() imgui.TextureID
-	SetFontAtlasTextureID(id imgui.TextureID)
-	GetTexture(id imgui.TextureID) *ebiten.Image
-	SetTexture(id imgui.TextureID, img *ebiten.Image)
-	RemoveTexture(id imgui.TextureID)
+	FontAtlasTextureID() cimgui.ImTextureID
+	SetFontAtlasTextureID(id cimgui.ImTextureID)
+	GetTexture(id cimgui.ImTextureID) *ebiten.Image
+	SetTexture(id cimgui.ImTextureID, img *ebiten.Image)
+	RemoveTexture(id cimgui.ImTextureID)
 	ResetFontAtlasCache(filter ebiten.Filter)
 }
 
 type textureCache struct {
-	fontAtlasID    imgui.TextureID
+	fontAtlasID    cimgui.ImTextureID
 	fontAtlasImage *ebiten.Image
-	cache          map[imgui.TextureID]*ebiten.Image
+	cache          map[cimgui.ImTextureID]*ebiten.Image
 	dfilter        ebiten.Filter
 }
 
@@ -25,21 +26,22 @@ var _ TextureCache = (*textureCache)(nil)
 
 func (c *textureCache) getFontAtlas() *ebiten.Image {
 	if c.fontAtlasImage == nil {
-		c.fontAtlasImage = getTexture(imgui.CurrentIO().Fonts().TextureDataRGBA32())
+		pixels, width, height, outBytesPerPixel := cimgui.GetIO().GetFonts().GetTextureDataAsRGBA32() // call this to force imgui to build the font atlas cache
+		c.fontAtlasImage = getTexture(pixels, width, height, outBytesPerPixel)
 	}
 	return c.fontAtlasImage
 }
 
-func (c *textureCache) FontAtlasTextureID() imgui.TextureID {
+func (c *textureCache) FontAtlasTextureID() cimgui.ImTextureID {
 	return c.fontAtlasID
 }
 
-func (c *textureCache) SetFontAtlasTextureID(id imgui.TextureID) {
+func (c *textureCache) SetFontAtlasTextureID(id cimgui.ImTextureID) {
 	c.fontAtlasID = id
 	// c.fontAtlasImage = nil
 }
 
-func (c *textureCache) GetTexture(id imgui.TextureID) *ebiten.Image {
+func (c *textureCache) GetTexture(id cimgui.ImTextureID) *ebiten.Image {
 	if id != c.fontAtlasID {
 		if im, ok := c.cache[id]; ok {
 			return im
@@ -48,11 +50,11 @@ func (c *textureCache) GetTexture(id imgui.TextureID) *ebiten.Image {
 	return c.getFontAtlas()
 }
 
-func (c *textureCache) SetTexture(id imgui.TextureID, img *ebiten.Image) {
+func (c *textureCache) SetTexture(id cimgui.ImTextureID, img *ebiten.Image) {
 	c.cache[id] = img
 }
 
-func (c *textureCache) RemoveTexture(id imgui.TextureID) {
+func (c *textureCache) RemoveTexture(id cimgui.ImTextureID) {
 	delete(c.cache, id)
 }
 
@@ -64,7 +66,7 @@ func (c *textureCache) ResetFontAtlasCache(filter ebiten.Filter) {
 func NewCache() TextureCache {
 	return &textureCache{
 		fontAtlasID:    1,
-		cache:          make(map[imgui.TextureID]*ebiten.Image),
+		cache:          make(map[cimgui.ImTextureID]*ebiten.Image),
 		fontAtlasImage: nil,
 	}
 }

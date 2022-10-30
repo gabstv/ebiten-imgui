@@ -10,7 +10,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"github.com/inkyblackness/imgui-go/v4"
+
+	imgui "github.com/AllenDang/cimgui-go"
 )
 
 // Example with the main Demo window and ClipMask
@@ -22,8 +23,9 @@ func main() {
 	ebiten.SetWindowResizable(true)
 
 	gg := &G{
-		mgr:    mgr,
-		dscale: ebiten.DeviceScaleFactor(),
+		mgr:            mgr,
+		dscale:         ebiten.DeviceScaleFactor(),
+		showDemoWindow: true,
 	}
 
 	ebiten.RunGame(gg)
@@ -55,7 +57,7 @@ func (g *G) Update() error {
 		imgui.Checkbox("Demo Window", &g.showDemoWindow) // Edit bools storing our window open/close state
 
 		if g.showDemoWindow {
-			imgui.ShowDemoWindow(&g.showDemoWindow)
+			imgui.ShowDemoWindow()
 		}
 	}
 	g.mgr.EndFrame()

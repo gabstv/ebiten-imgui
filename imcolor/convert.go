@@ -4,12 +4,12 @@ package imcolor
 import (
 	"image/color"
 
-	"github.com/inkyblackness/imgui-go/v4"
+	"github.com/AllenDang/cimgui-go"
 )
 
-func ToVec4(c color.Color) imgui.Vec4 {
+func ToVec4(c color.Color) cimgui.ImVec4 {
 	r32, g32, b32, a32 := c.RGBA()
-	return imgui.Vec4{
+	return cimgui.ImVec4{
 		X: float32(r32) / 0xffff,
 		Y: float32(g32) / 0xffff,
 		Z: float32(b32) / 0xffff,
@@ -17,7 +17,7 @@ func ToVec4(c color.Color) imgui.Vec4 {
 	}
 }
 
-func ToColor(c imgui.Vec4) color.RGBA64 {
+func ToColor(c cimgui.ImVec4) color.RGBA64 {
 	return color.RGBA64{
 		R: uint16(c.X * 0xffff),
 		G: uint16(c.Y * 0xffff),
