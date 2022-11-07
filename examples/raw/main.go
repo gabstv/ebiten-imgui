@@ -1,3 +1,4 @@
+//go:build example
 // +build example
 
 package main
@@ -6,7 +7,7 @@ import (
 	"fmt"
 	"image/color"
 
-	"github.com/gabstv/ebiten-imgui/renderer"
+	"github.com/gabstv/ebiten-imgui/v2/renderer"
 	ebiten "github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	imgui "github.com/inkyblackness/imgui-go/v4"

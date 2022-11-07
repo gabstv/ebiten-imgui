@@ -5,7 +5,7 @@ import (
 	"image"
 	"unsafe"
 
-	"github.com/gabstv/ebiten-imgui/internal/native"
+	"github.com/gabstv/ebiten-imgui/v2/internal/native"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/inkyblackness/imgui-go/v4"
 )
@@ -120,9 +120,9 @@ func getTexture(tex *imgui.RGBA32Image) *ebiten.Image {
 	// as srcPix points right into an imgui-owned data structure.
 	for i := 0; i < n; i++ {
 		alpha := uint16(srcPix[4*i+3])
-		pix[4*i] = uint8((uint16(srcPix[4*i]) * alpha + 127) / 255)
-		pix[4*i+1] = uint8((uint16(srcPix[4*i+1]) * alpha + 127) / 255)
-		pix[4*i+2] = uint8((uint16(srcPix[4*i+2]) * alpha + 127) / 255)
+		pix[4*i] = uint8((uint16(srcPix[4*i])*alpha + 127) / 255)
+		pix[4*i+1] = uint8((uint16(srcPix[4*i+1])*alpha + 127) / 255)
+		pix[4*i+2] = uint8((uint16(srcPix[4*i+2])*alpha + 127) / 255)
 		pix[4*i+3] = uint8(alpha)
 	}
 	img := ebiten.NewImage(tex.Width, tex.Height)

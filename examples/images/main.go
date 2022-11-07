@@ -9,7 +9,7 @@ import (
 	_ "image/png"
 	"log"
 
-	"github.com/gabstv/ebiten-imgui/renderer"
+	"github.com/gabstv/ebiten-imgui/v2/renderer"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/inkyblackness/imgui-go/v4"

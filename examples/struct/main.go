@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"image/color"
 
-	"github.com/gabstv/ebiten-imgui/imcolor"
-	"github.com/gabstv/ebiten-imgui/renderer"
+	"github.com/gabstv/ebiten-imgui/v2/imcolor"
+	"github.com/gabstv/ebiten-imgui/v2/renderer"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/inkyblackness/imgui-go/v4"
