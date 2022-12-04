@@ -17,3 +17,6 @@ require (
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	golang.org/x/sys v0.0.0-20220408201424-a24fb2fb8a0f // indirect
 )
+
+// replace github.com/AllenDang/cimgui-go => github.com/eliasdaler/cimgui-go v0.0.0-20221204025009-a8361f1011a3
+replace github.com/AllenDang/cimgui-go => github.com/eliasdaler/cimgui-go v0.0.0-20221204031124-7834a8b46f45
