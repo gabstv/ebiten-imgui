@@ -1,13 +1,13 @@
-package renderer
+package ebimgui
 
 import (
 	"fmt"
 	"image"
 	"unsafe"
 
-	"github.com/gabstv/ebiten-imgui/internal/native"
+	imgui "github.com/gabstv/cimgui-go"
+	"github.com/gabstv/ebiten-imgui/v3/internal/native"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/inkyblackness/imgui-go/v4"
 )
 
 // struct ImDrawVert
@@ -110,9 +110,9 @@ func vmultiply(v, vbuf []ebiten.Vertex, bmin, bmax image.Point) {
 	}
 }
 
-func getTexture(tex *imgui.RGBA32Image) *ebiten.Image {
-	n := tex.Width * tex.Height
-	srcPix := (*[1 << 28]uint8)(tex.Pixels)[: n*4 : n*4]
+func getTexture(pixels unsafe.Pointer, width int32, height int32, outBytesPerPixel int32) *ebiten.Image {
+	n := int(width * height)
+	srcPix := (*[1 << 28]uint8)(pixels)[: n*4 : n*4]
 	pix := make([]uint8, n*4)
 	// Note: Ebiten expects colors in premultiplied-alpha form.
 	// However, the imgui library exports pixmaps in straight-alpha form.
@@ -120,13 +120,13 @@ func getTexture(tex *imgui.RGBA32Image) *ebiten.Image {
 	// as srcPix points right into an imgui-owned data structure.
 	for i := 0; i < n; i++ {
 		alpha := uint16(srcPix[4*i+3])
-		pix[4*i] = uint8((uint16(srcPix[4*i]) * alpha + 127) / 255)
-		pix[4*i+1] = uint8((uint16(srcPix[4*i+1]) * alpha + 127) / 255)
-		pix[4*i+2] = uint8((uint16(srcPix[4*i+2]) * alpha + 127) / 255)
+		pix[4*i] = uint8((uint16(srcPix[4*i])*alpha + 127) / 255)
+		pix[4*i+1] = uint8((uint16(srcPix[4*i+1])*alpha + 127) / 255)
+		pix[4*i+2] = uint8((uint16(srcPix[4*i+2])*alpha + 127) / 255)
 		pix[4*i+3] = uint8(alpha)
 	}
-	img := ebiten.NewImage(tex.Width, tex.Height)
-	img.ReplacePixels(pix)
+	img := ebiten.NewImage(int(width), int(height))
+	img.WritePixels(pix)
 	return img
 }
 
@@ -153,21 +153,20 @@ func getIndices(ibuf unsafe.Pointer, iblen, isize int) []uint16 {
 	default:
 		panic(fmt.Sprint("byte size", isize, "not supported"))
 	}
-	return nil
 }
 
 // Render the ImGui drawData into the target *ebiten.Image
-func Render(target *ebiten.Image, drawData imgui.DrawData, txcache TextureCache, dfilter ebiten.Filter) {
+func Render(target *ebiten.Image, drawData *imgui.DrawData, txcache TextureCache, dfilter ebiten.Filter) {
 	render(target, nil, drawData, txcache, dfilter)
 }
 
 // RenderMasked renders the ImGui drawData into the target *ebiten.Image with ebiten.CompositeModeCopy for masking
-func RenderMasked(target *ebiten.Image, mask *ebiten.Image, drawData imgui.DrawData, txcache TextureCache, dfilter ebiten.Filter) {
+func RenderMasked(target *ebiten.Image, mask *ebiten.Image, drawData *imgui.DrawData, txcache TextureCache, dfilter ebiten.Filter) {
 	render(target, mask, drawData, txcache, dfilter)
 }
 
-func render(target *ebiten.Image, mask *ebiten.Image, drawData imgui.DrawData, txcache TextureCache, dfilter ebiten.Filter) {
-	targetw, targeth := target.Size()
+func render(target *ebiten.Image, mask *ebiten.Image, drawData *imgui.DrawData, txcache TextureCache, dfilter ebiten.Filter) {
+	targetSize := target.Bounds().Size()
 	if !drawData.Valid() {
 		return
 	}
@@ -181,27 +180,27 @@ func render(target *ebiten.Image, mask *ebiten.Image, drawData imgui.DrawData, t
 	var opt2 *ebiten.DrawImageOptions
 	if mask != nil {
 		opt2 = &ebiten.DrawImageOptions{
-			CompositeMode: ebiten.CompositeModeSourceOver,
+			Blend: ebiten.BlendSourceOver,
 		}
 	}
 
 	for _, clist := range drawData.CommandLists() {
 		var indexBufferOffset int
-		vertexBuffer, vertexLen := clist.VertexBuffer()
-		indexBuffer, indexLen := clist.IndexBuffer()
+		vertexBuffer, vertexLen := clist.GetVertexBuffer()
+		indexBuffer, indexLen := clist.GetIndexBuffer()
 		vertices := getVertices(vertexBuffer, vertexLen, vertexSize, vertexOffsetPos, vertexOffsetUv, vertexOffsetCol)
 		vbuf := vcopy(vertices)
 		indices := getIndices(indexBuffer, indexLen, indexSize)
 		for _, cmd := range clist.Commands() {
-			ecount := cmd.ElementCount()
+			ecount := int(cmd.ElemCount())
 			if cmd.HasUserCallback() {
 				cmd.CallUserCallback(clist)
 			} else {
 				clipRect := cmd.ClipRect()
-				texid := cmd.TextureID()
+				texid := cmd.TextureId()
 				tx := txcache.GetTexture(texid)
 				vmultiply(vertices, vbuf, tx.Bounds().Min, tx.Bounds().Max)
-				if mask == nil || (clipRect.X == 0 && clipRect.Y == 0 && clipRect.Z == float32(targetw) && clipRect.W == float32(targeth)) {
+				if mask == nil || (clipRect.X == 0 && clipRect.Y == 0 && clipRect.Z == float32(targetSize.X) && clipRect.W == float32(targetSize.Y)) {
 					target.DrawTriangles(vbuf, indices[indexBufferOffset:indexBufferOffset+ecount], tx, opt)
 				} else {
 					mask.Clear()

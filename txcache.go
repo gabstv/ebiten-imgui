@@ -1,8 +1,8 @@
-package renderer
+package ebimgui
 
 import (
+	imgui "github.com/gabstv/cimgui-go"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/inkyblackness/imgui-go/v4"
 )
 
 type TextureCache interface {
@@ -25,7 +25,8 @@ var _ TextureCache = (*textureCache)(nil)
 
 func (c *textureCache) getFontAtlas() *ebiten.Image {
 	if c.fontAtlasImage == nil {
-		c.fontAtlasImage = getTexture(imgui.CurrentIO().Fonts().TextureDataRGBA32())
+		pixels, width, height, outBytesPerPixel := imgui.CurrentIO().Fonts().GetTextureDataAsRGBA32() // call this to force imgui to build the font atlas cache
+		c.fontAtlasImage = getTexture(pixels, width, height, outBytesPerPixel)
 	}
 	return c.fontAtlasImage
 }
@@ -63,7 +64,7 @@ func (c *textureCache) ResetFontAtlasCache(filter ebiten.Filter) {
 
 func NewCache() TextureCache {
 	return &textureCache{
-		fontAtlasID:    1,
+		fontAtlasID:    imgui.TextureID(&id1),
 		cache:          make(map[imgui.TextureID]*ebiten.Image),
 		fontAtlasImage: nil,
 	}
