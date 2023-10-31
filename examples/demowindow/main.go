@@ -6,7 +6,7 @@ package main
 import (
 	"fmt"
 
-	imgui "github.com/AllenDang/cimgui-go"
+	"github.com/AllenDang/cimgui-go"
 	"github.com/gabstv/ebiten-imgui/v2/renderer"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -22,8 +22,9 @@ func main() {
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 
 	gg := &G{
-		mgr:    mgr,
-		dscale: ebiten.DeviceScaleFactor(),
+		mgr:            mgr,
+		dscale:         ebiten.DeviceScaleFactor(),
+		showDemoWindow: true,
 	}
 
 	ebiten.RunGame(gg)

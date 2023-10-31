@@ -37,21 +37,30 @@ func main() {
 
 type G struct {
 	mgr *renderer.Manager
-	// demo members:
-	clearColor [3]float32
 }
 
 func (g *G) Draw(screen *ebiten.Image) {
-	screen.Fill(color.RGBA{uint8(g.clearColor[0] * 255), uint8(g.clearColor[1] * 255), uint8(g.clearColor[2] * 255), 255})
+	screen.Fill(color.Black)
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %.2f", ebiten.CurrentTPS()))
 	g.mgr.Draw(screen)
+}
+
+// cimgui-go doesn't have imgui.Image with sensible default yet
+// you can implement it like this
+func Image(tid imgui.ImTextureID, size imgui.ImVec2) {
+	uv0 := imgui.NewImVec2(0, 0)
+	uv1 := imgui.NewImVec2(1, 1)
+	border_col := imgui.NewImVec4(0, 0, 0, 0)
+	tint_col := imgui.NewImVec4(1, 1, 1, 1)
+
+	imgui.ImageV(tid, size, uv0, uv1, tint_col, border_col)
 }
 
 func (g *G) Update() error {
 	g.mgr.Update(1.0 / 60.0)
 	g.mgr.BeginFrame()
 	imgui.Text("Hello, images!")
-	imgui.Image(10, imgui.Vec2{X: 64, Y: 64})
+	Image(10, imgui.ImVec2{X: 64, Y: 64})
 	g.mgr.EndFrame()
 	return nil
 }
