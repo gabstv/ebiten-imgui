@@ -166,7 +166,7 @@ func RenderMasked(target *ebiten.Image, mask *ebiten.Image, drawData *imgui.Draw
 }
 
 func render(target *ebiten.Image, mask *ebiten.Image, drawData *imgui.DrawData, txcache TextureCache, dfilter ebiten.Filter) {
-	targetw, targeth := target.Size()
+	targetSize := target.Bounds().Size()
 	if !drawData.Valid() {
 		return
 	}
@@ -180,7 +180,7 @@ func render(target *ebiten.Image, mask *ebiten.Image, drawData *imgui.DrawData, 
 	var opt2 *ebiten.DrawImageOptions
 	if mask != nil {
 		opt2 = &ebiten.DrawImageOptions{
-			CompositeMode: ebiten.CompositeModeSourceOver,
+			Blend: ebiten.BlendSourceOver,
 		}
 	}
 
@@ -200,7 +200,7 @@ func render(target *ebiten.Image, mask *ebiten.Image, drawData *imgui.DrawData, 
 				texid := cmd.TextureId()
 				tx := txcache.GetTexture(texid)
 				vmultiply(vertices, vbuf, tx.Bounds().Min, tx.Bounds().Max)
-				if mask == nil || (clipRect.X == 0 && clipRect.Y == 0 && clipRect.Z == float32(targetw) && clipRect.W == float32(targeth)) {
+				if mask == nil || (clipRect.X == 0 && clipRect.Y == 0 && clipRect.Z == float32(targetSize.X) && clipRect.W == float32(targetSize.Y)) {
 					target.DrawTriangles(vbuf, indices[indexBufferOffset:indexBufferOffset+ecount], tx, opt)
 				} else {
 					mask.Clear()
