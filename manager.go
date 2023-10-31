@@ -1,4 +1,4 @@
-package renderer
+package ebimgui
 
 import (
 	"runtime"
@@ -111,7 +111,7 @@ func (m *Manager) Draw(screen *ebiten.Image) {
 
 var id1 = 1
 
-func New(fontAtlas *imgui.FontAtlas) *Manager {
+func NewManager(fontAtlas *imgui.FontAtlas) *Manager {
 	var imctx *imgui.Context
 
 	if fontAtlas != nil {
@@ -143,7 +143,7 @@ func New(fontAtlas *imgui.FontAtlas) *Manager {
 	return m
 }
 
-func NewWithContext(ctx *imgui.Context) *Manager {
+func NewManagerWithContext(ctx *imgui.Context) *Manager {
 	m := &Manager{
 		Cache:              NewCache(),
 		ctx:                ctx,

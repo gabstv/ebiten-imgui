@@ -1,4 +1,4 @@
-module github.com/gabstv/ebiten-imgui/v2
+module github.com/gabstv/ebiten-imgui/v3
 
 go 1.21
 

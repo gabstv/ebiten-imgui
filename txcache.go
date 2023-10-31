@@ -1,4 +1,4 @@
-package renderer
+package ebimgui
 
 import (
 	imgui "github.com/gabstv/cimgui-go"

@@ -1,4 +1,4 @@
-package renderer
+package ebimgui
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"unsafe"
 
 	imgui "github.com/gabstv/cimgui-go"
-	"github.com/gabstv/ebiten-imgui/v2/internal/native"
+	"github.com/gabstv/ebiten-imgui/v3/internal/native"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -126,7 +126,7 @@ func getTexture(pixels unsafe.Pointer, width int32, height int32, outBytesPerPix
 		pix[4*i+3] = uint8(alpha)
 	}
 	img := ebiten.NewImage(int(width), int(height))
-	img.ReplacePixels(pix)
+	img.WritePixels(pix)
 	return img
 }
 
