@@ -3,8 +3,6 @@ Dear ImGui for Ebitengine
 
 A renderer of [cimgui-go](https://github.com/gabstv/cimgui-go) for [Ebitengine](https://github.com/hajimehoshi/ebiten/)!
 
-This project is in a pre-alpha stage. The API might change in future versions.
-
 ![preview](assets/preview.png)
 
 Usage:
