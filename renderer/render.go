@@ -5,9 +5,9 @@ import (
 	"image"
 	"unsafe"
 
+	imgui "github.com/AllenDang/cimgui-go"
 	"github.com/gabstv/ebiten-imgui/v2/internal/native"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/inkyblackness/imgui-go/v4"
 )
 
 // struct ImDrawVert

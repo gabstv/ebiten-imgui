@@ -7,11 +7,11 @@ import (
 	"fmt"
 	"image/color"
 
+	imgui "github.com/AllenDang/cimgui-go"
 	"github.com/gabstv/ebiten-imgui/v2/imcolor"
 	"github.com/gabstv/ebiten-imgui/v2/renderer"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	"github.com/inkyblackness/imgui-go/v4"
 )
 
 func main() {
@@ -61,7 +61,7 @@ func (g *G) Update() error {
 		imgui.SameLine()
 		imgui.Text(fmt.Sprintf("counter = %d", g.counter))
 
-		imgui.InputText("Name", &g.name)
+		imgui.InputTextMultiline("Name", &g.name, imgui.CalcTextSize(g.name), imgui.InputTextFlagsNone, nil)
 
 		xcol := imcolor.ToVec4(color.RGBA{
 			R: 0xFF,
@@ -69,7 +69,7 @@ func (g *G) Update() error {
 			B: 0xFF,
 			A: 0x99,
 		})
-		imgui.PushStyleColor(imgui.StyleColorText, xcol)
+		imgui.PushStyleColorVec4(imgui.ColText, xcol)
 		imgui.Text(fmt.Sprintf("fps = %f", ebiten.CurrentFPS()))
 		imgui.PopStyleColor()
 

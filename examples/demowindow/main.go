@@ -6,11 +6,11 @@ package main
 import (
 	"fmt"
 
+	imgui "github.com/AllenDang/cimgui-go"
 	"github.com/gabstv/ebiten-imgui/v2/renderer"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"github.com/inkyblackness/imgui-go/v4"
 )
 
 // Example with the main Demo window and ClipMask
@@ -19,7 +19,7 @@ func main() {
 	mgr := renderer.New(nil)
 
 	ebiten.SetWindowSize(1024, 768)
-	ebiten.SetWindowResizable(true)
+	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 
 	gg := &G{
 		mgr:    mgr,
@@ -55,7 +55,7 @@ func (g *G) Update() error {
 		imgui.Checkbox("Demo Window", &g.showDemoWindow) // Edit bools storing our window open/close state
 
 		if g.showDemoWindow {
-			imgui.ShowDemoWindow(&g.showDemoWindow)
+			imgui.ShowDemoWindow()
 		}
 	}
 	g.mgr.EndFrame()

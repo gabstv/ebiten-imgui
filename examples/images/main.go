@@ -9,10 +9,10 @@ import (
 	_ "image/png"
 	"log"
 
+	imgui "github.com/AllenDang/cimgui-go"
 	"github.com/gabstv/ebiten-imgui/v2/renderer"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	"github.com/inkyblackness/imgui-go/v4"
 )
 
 var exampleImage *ebiten.Image

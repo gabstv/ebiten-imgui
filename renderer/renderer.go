@@ -3,8 +3,8 @@ package renderer
 import (
 	"runtime"
 
+	imgui "github.com/AllenDang/cimgui-go"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/inkyblackness/imgui-go/v4"
 )
 
 //var nextTextureID int32

@@ -1,8 +1,8 @@
 package renderer
 
 import (
+	imgui "github.com/AllenDang/cimgui-go"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/inkyblackness/imgui-go/v4"
 )
 
 type TextureCache interface {
