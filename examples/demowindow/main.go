@@ -6,7 +6,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/AllenDang/cimgui-go"
+	"github.com/gabstv/cimgui-go"
 	"github.com/gabstv/ebiten-imgui/v2/renderer"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"

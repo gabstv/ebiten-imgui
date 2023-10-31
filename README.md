@@ -1,7 +1,7 @@
 Dear ImGui for Ebitengine
 =========================
 
-A renderer of [cimgui-go](https://github.com/AllenDang/cimgui-go) for [Ebitengine](https://github.com/hajimehoshi/ebiten/)!
+A renderer of [cimgui-go](https://github.com/gabstv/cimgui-go) for [Ebitengine](https://github.com/hajimehoshi/ebiten/)!
 
 This project is in a pre-alpha stage. The API might change in future versions.
 
@@ -22,8 +22,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 
-	imgui "github.com/AllenDang/cimgui-go"
-	imgui "github.com/AllenDang/cimgui-go"
+	imgui "github.com/gabstv/cimgui-go"
+	imgui "github.com/gabstv/cimgui-go"
 )
 
 func main() {

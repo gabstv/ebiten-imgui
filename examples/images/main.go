@@ -9,7 +9,7 @@ import (
 	_ "image/png"
 	"log"
 
-	imgui "github.com/AllenDang/cimgui-go"
+	imgui "github.com/gabstv/cimgui-go"
 	"github.com/gabstv/ebiten-imgui/v2/renderer"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"

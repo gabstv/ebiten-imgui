@@ -3,7 +3,7 @@ package renderer
 import (
 	"runtime"
 
-	"github.com/AllenDang/cimgui-go"
+	imgui "github.com/gabstv/cimgui-go"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -14,7 +14,7 @@ type GetCursorFn func() (x, y float32)
 type Manager struct {
 	Filter             ebiten.Filter
 	Cache              TextureCache
-	ctx                *cimgui.ImGuiContext
+	ctx                *imgui.Context
 	cliptxt            string
 	GetCursor          GetCursorFn
 	SyncInputsFn       func()
@@ -48,20 +48,20 @@ func (m *Manager) SetDisplaySize(width, height float32) {
 }
 
 func (m *Manager) Update(delta float32) {
-	io := cimgui.GetIO()
+	io := imgui.CurrentIO()
 	if m.width > 0 || m.height > 0 {
-		io.SetDisplaySize(cimgui.ImVec2{X: m.width, Y: m.height})
+		io.SetDisplaySize(imgui.Vec2{X: m.width, Y: m.height})
 	} else if m.screenWidth > 0 || m.screenHeight > 0 {
-		io.SetDisplaySize(cimgui.ImVec2{X: float32(m.screenWidth), Y: float32(m.screenHeight)})
+		io.SetDisplaySize(imgui.Vec2{X: float32(m.screenWidth), Y: float32(m.screenHeight)})
 	}
 	io.SetDeltaTime(delta)
 	if m.SyncCursor {
 		if m.GetCursor != nil {
 			x, y := m.GetCursor()
-			io.SetMousePos(cimgui.ImVec2{X: x, Y: y})
+			io.SetMousePos(imgui.Vec2{X: x, Y: y})
 		} else {
 			mx, my := ebiten.CursorPosition()
-			io.SetMousePos(cimgui.ImVec2{X: float32(mx), Y: float32(my)})
+			io.SetMousePos(imgui.Vec2{X: float32(mx), Y: float32(my)})
 		}
 		io.SetMouseButtonDown(0, ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft))
 		io.SetMouseButtonDown(1, ebiten.IsMouseButtonPressed(ebiten.MouseButtonRight))
@@ -74,23 +74,23 @@ func (m *Manager) Update(delta float32) {
 		if m.SyncInputsFn != nil {
 			m.SyncInputsFn()
 		} else {
-			m.inputChars = sendInput(cimgui.GetIO(), m.inputChars)
+			m.inputChars = sendInput(imgui.CurrentIO(), m.inputChars)
 		}
 	}
 }
 
 func (m *Manager) BeginFrame() {
-	cimgui.NewFrame()
+	imgui.NewFrame()
 }
 
 func (m *Manager) EndFrame() {
-	cimgui.EndFrame()
+	imgui.EndFrame()
 }
 
 func (m *Manager) Draw(screen *ebiten.Image) {
 	m.screenWidth = screen.Bounds().Dx()
 	m.screenHeight = screen.Bounds().Dy()
-	cimgui.Render()
+	imgui.Render()
 	if m.ClipMask {
 		if m.lmask == nil {
 			w, h := screen.Size()
@@ -103,41 +103,47 @@ func (m *Manager) Draw(screen *ebiten.Image) {
 				m.lmask = ebiten.NewImage(w1, h1)
 			}
 		}
-		RenderMasked(screen, m.lmask, cimgui.GetDrawData(), m.Cache, m.Filter)
+		RenderMasked(screen, m.lmask, imgui.CurrentDrawData(), m.Cache, m.Filter)
 	} else {
-		Render(screen, cimgui.GetDrawData(), m.Cache, m.Filter)
+		Render(screen, imgui.CurrentDrawData(), m.Cache, m.Filter)
 	}
 }
 
-func New(fontAtlas *cimgui.ImFontAtlas) *Manager {
-	var imctx cimgui.ImGuiContext
+var id1 = 1
+
+func New(fontAtlas *imgui.FontAtlas) *Manager {
+	var imctx *imgui.Context
+
 	if fontAtlas != nil {
-		imctx = cimgui.CreateContextV(*fontAtlas)
+		imctx = imgui.CreateContextV(fontAtlas)
 	} else {
-		imctx = cimgui.CreateContext()
+		imctx = imgui.CreateContext()
 	}
+
 	m := &Manager{
 		Cache:              NewCache(),
-		ctx:                &imctx,
+		ctx:                imctx,
 		SyncCursor:         true,
 		SyncInputs:         true,
 		ClipMask:           true,
 		ControlCursorShape: true,
 		inputChars:         make([]rune, 0, 256),
 	}
+
 	runtime.SetFinalizer(m, (*Manager).onfinalize)
+
 	// Build texture atlas
-	fonts := cimgui.GetIO().GetFonts()
+	fonts := imgui.CurrentIO().Fonts()
 	_, _, _, _ = fonts.GetTextureDataAsRGBA32() // call this to force imgui to build the font atlas cache
-	fonts.SetTexID(cimgui.ImTextureID(1))
-	m.Cache.SetFontAtlasTextureID(1)
+	fonts.SetTexID(imgui.TextureID(&id1))
+	m.Cache.SetFontAtlasTextureID(imgui.TextureID(&id1))
 
 	m.setKeyMapping()
 
 	return m
 }
 
-func NewWithContext(ctx *cimgui.ImGuiContext) *Manager {
+func NewWithContext(ctx *imgui.Context) *Manager {
 	m := &Manager{
 		Cache:              NewCache(),
 		ctx:                ctx,
@@ -155,20 +161,20 @@ func (m *Manager) controlCursorShape() {
 		return
 	}
 
-	switch cimgui.GetMouseCursor() {
-	case cimgui.ImGuiMouseCursor_None:
+	switch imgui.CurrentMouseCursor() {
+	case imgui.MouseCursorNone:
 		ebiten.SetCursorShape(ebiten.CursorShapeDefault)
-	case cimgui.ImGuiMouseCursor_Arrow:
+	case imgui.MouseCursorArrow:
 		ebiten.SetCursorShape(ebiten.CursorShapeDefault)
-	case cimgui.ImGuiMouseCursor_TextInput:
+	case imgui.MouseCursorTextInput:
 		ebiten.SetCursorShape(ebiten.CursorShapeText)
-	case cimgui.ImGuiMouseCursor_ResizeAll:
+	case imgui.MouseCursorResizeAll:
 		ebiten.SetCursorShape(ebiten.CursorShapeCrosshair)
-	case cimgui.ImGuiMouseCursor_ResizeEW:
+	case imgui.MouseCursorResizeEW:
 		ebiten.SetCursorShape(ebiten.CursorShapeEWResize)
-	case cimgui.ImGuiMouseCursor_ResizeNS:
+	case imgui.MouseCursorResizeNS:
 		ebiten.SetCursorShape(ebiten.CursorShapeNSResize)
-	case cimgui.ImGuiMouseCursor_Hand:
+	case imgui.MouseCursorHand:
 		ebiten.SetCursorShape(ebiten.CursorShapePointer)
 	default:
 		ebiten.SetCursorShape(ebiten.CursorShapeDefault)

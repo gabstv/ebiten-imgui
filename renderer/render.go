@@ -5,7 +5,7 @@ import (
 	"image"
 	"unsafe"
 
-	"github.com/AllenDang/cimgui-go"
+	imgui "github.com/gabstv/cimgui-go"
 	"github.com/gabstv/ebiten-imgui/v2/internal/native"
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -153,27 +153,26 @@ func getIndices(ibuf unsafe.Pointer, iblen, isize int) []uint16 {
 	default:
 		panic(fmt.Sprint("byte size", isize, "not supported"))
 	}
-	return nil
 }
 
 // Render the ImGui drawData into the target *ebiten.Image
-func Render(target *ebiten.Image, drawData cimgui.ImDrawData, txcache TextureCache, dfilter ebiten.Filter) {
+func Render(target *ebiten.Image, drawData *imgui.DrawData, txcache TextureCache, dfilter ebiten.Filter) {
 	render(target, nil, drawData, txcache, dfilter)
 }
 
 // RenderMasked renders the ImGui drawData into the target *ebiten.Image with ebiten.CompositeModeCopy for masking
-func RenderMasked(target *ebiten.Image, mask *ebiten.Image, drawData cimgui.ImDrawData, txcache TextureCache, dfilter ebiten.Filter) {
+func RenderMasked(target *ebiten.Image, mask *ebiten.Image, drawData *imgui.DrawData, txcache TextureCache, dfilter ebiten.Filter) {
 	render(target, mask, drawData, txcache, dfilter)
 }
 
-func render(target *ebiten.Image, mask *ebiten.Image, drawData cimgui.ImDrawData, txcache TextureCache, dfilter ebiten.Filter) {
+func render(target *ebiten.Image, mask *ebiten.Image, drawData *imgui.DrawData, txcache TextureCache, dfilter ebiten.Filter) {
 	targetw, targeth := target.Size()
-	if !drawData.GetValid() {
+	if !drawData.Valid() {
 		return
 	}
 
-	vertexSize, vertexOffsetPos, vertexOffsetUv, vertexOffsetCol := cimgui.VertexBufferLayout()
-	indexSize := cimgui.IndexBufferLayout()
+	vertexSize, vertexOffsetPos, vertexOffsetUv, vertexOffsetCol := imgui.VertexBufferLayout()
+	indexSize := imgui.IndexBufferLayout()
 
 	opt := &ebiten.DrawTrianglesOptions{
 		Filter: dfilter,
@@ -193,12 +192,12 @@ func render(target *ebiten.Image, mask *ebiten.Image, drawData cimgui.ImDrawData
 		vbuf := vcopy(vertices)
 		indices := getIndices(indexBuffer, indexLen, indexSize)
 		for _, cmd := range clist.Commands() {
-			ecount := int(cmd.GetElemCount())
+			ecount := int(cmd.ElemCount())
 			if cmd.HasUserCallback() {
 				cmd.CallUserCallback(clist)
 			} else {
-				clipRect := cmd.GetClipRect()
-				texid := cmd.GetTextureId()
+				clipRect := cmd.ClipRect()
+				texid := cmd.TextureId()
 				tx := txcache.GetTexture(texid)
 				vmultiply(vertices, vbuf, tx.Bounds().Min, tx.Bounds().Max)
 				if mask == nil || (clipRect.X == 0 && clipRect.Y == 0 && clipRect.Z == float32(targetw) && clipRect.W == float32(targeth)) {
