@@ -26,7 +26,7 @@ import (
 func main() {
 	gg := &G{
 		name:       "Hello, Dear ImGui",
-		clearColor: [3]*float32{new(float32), new(float32), new(float32)},
+		clearColor: [3]float32{0,0,0},
 	}
 
 	ebiten.SetWindowSize(800, 600)
@@ -36,14 +36,14 @@ func main() {
 }
 
 type G struct {
-	clearColor [3]*float32
+	clearColor [3]float32
 	floatVal   float32
 	counter    int
 	name       string
 }
 
 func (g *G) Draw(screen *ebiten.Image) {
-	screen.Fill(color.RGBA{uint8(*g.clearColor[0] * 255), uint8(*g.clearColor[1] * 255), uint8(*g.clearColor[2] * 255), 255})
+	screen.Fill(color.RGBA{uint8(g.clearColor[0] * 255), uint8(g.clearColor[1] * 255), uint8(g.clearColor[2] * 255), 255})
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %.2f", ebiten.CurrentTPS()))
 	ebimgui.Draw(screen)
 }
@@ -60,7 +60,7 @@ func (g *G) Update() error {
 	imgui.Text("ภาษาไทย测试조선말")                        // To display these, you'll need to register a compatible font
 	imgui.Text("Hello, world!")                       // Display some text
 	imgui.SliderFloat("float", &g.floatVal, 0.0, 1.0) // Edit 1 float using a slider from 0.0f to 1.0f
-	imgui.ColorEdit3("clear color", g.clearColor)     // Edit 3 floats representing a color
+	imgui.ColorEdit3("clear color", &g.clearColor)     // Edit 3 floats representing a color
 
 	//imgui.Checkbox("Demo Window", &showDemoWindow) // Edit bools storing our window open/close state
 	//imgui.Checkbox("Go Demo Window", &showGoDemoWindow)
